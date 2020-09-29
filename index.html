@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>My Friends Todo List</h1>
+
+    <form action="/addFriend" method="post">
+        <input type="text" name="name" placeholder="name" >
+        <input type="text" name="age" placeholder="age" >
+        <input type="text" name="quantity" placeholder="quantity" >
+        <button type="submit"> Add Friend</button>
+    </form>
+    <div id="friend-list"></div>
+    <div id="update"></div>
+    <script>
+        function loadFriendsList(){
+            fetch("/friends")
+            .then( res => res.json())
+            .then(friends => {
+                const container =  document.getElementById("friend-list");
+                container.innerHTML = "";
+                friends.forEach(fd => {
+                    const p = document.createElement("p");
+                    p.innerHTML = `
+                    ${fd.name}
+                    age: ${fd.age}
+                    quantity: ${fd.quantity}
+                    <button onclick="loadFriend('${fd._id}')">update</button>
+                    <button onclick="deleteFriend(event, '${fd._id}')">delete</button>
+                    `;
+                    container.appendChild(p);
+                });
+            })
+        }
+        loadFriendsList();
+
+        function loadFriend(id){
+            fetch(`/friend/${id}`)
+            .then(res => res.json())
+            .then(data => {
+                const update = document.getElementById('update');
+                update.innerHTML = `
+                <h3>Update: ${data._id}</h3>
+                <br/>
+                age: <input type="text" id="age" value="${data.age}" >
+                <br/>
+                quantity: <input type="text" id="quantity"  value="${data.quantity}">
+                <br/>
+                <button type="submit" onclick="updateFriend('${data._id}')"> submit</button>
+                `;
+            })
+        }
+
+
+        function updateFriend(id){
+            const age = document.getElementById('age').value;
+            const quantity = document.getElementById('quantity').value;
+            const friend = {id, age, quantity};
+            fetch(`/update/${id}`, {
+                method: 'PATCH',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(friend)
+            })
+            .then(res => res.json())
+            .then(results => {
+                if(results){
+                    loadFriendsList();
+                    document.getElementById('update').innerHTML = "";
+                }
+            })
+        }
+         
+
+        function deleteFriend(event, id){
+            fetch(`/delete/${id}`, {
+                method: 'DELETE'
+            })
+            .then(res => res.json())
+            .then(results => {
+                if(results){
+                    event.target.parentNode.style.display = 'none';
+                }
+            })
+        }
+    </script>
+</body>
+</html>
