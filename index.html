@@ -3,19 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <title>To-do List</title>
+    <style>
+        body { 
+            margin: 0;
+            padding: 0;
+            background-color: #2a4c53;
+        }
+        h3 {
+            color: #FFFF;
+            text-align: center;
+            margin: 20px;
+            font-weight: bold;
+        }
+        form{
+            margin: 20px;
+        }
+        .btn-color{
+            border: none;
+            color: white;
+            
+        }
+        .friend-item{
+            border-radius: 4    bv0px;
+        }
+
+    </style>
+
 </head>
 <body>
-    <h1>My Friends Todo List</h1>
+    <div class="container ">        
+            <h3>My Todo List</h3>        
 
-    <form action="/addFriend" method="post">
-        <input type="text" name="name" placeholder="name" >
-        <input type="text" name="age" placeholder="age" >
-        <input type="text" name="quantity" placeholder="quantity" >
-        <button type="submit"> Add Friend</button>
-    </form>
-    <div id="friend-list"></div>
-    <div id="update"></div>
+        <form action="/addFriend" method="post">
+            <div class="form-row align-items-center">            
+              <div class="col-md-3">               
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <div class="input-group-text">@</div>
+                  </div>
+                  <input type="text" class="form-control" name="name" placeholder="Username">
+                </div>
+              </div>
+              <div class="col-md-3 ">                
+                <input type="text" name="age" class="form-control" placeholder="age">
+              </div>
+              <div class="col-md-4 ">               
+                <input type="text" name="email" class="form-control"  placeholder="email">
+              </div>              
+              <div class="col-md-2 ">
+                <button type="submit" class="btn btn-outline-primary btn-color" >Add Friend</button>
+              </div>
+            </div>
+        </form>
+
+        <div id="friend-list"></div>
+
+        <div id="update"></div>
+    </div>    
     <script>
         function loadFriendsList(){
             fetch("/friends")
@@ -24,15 +70,28 @@
                 const container =  document.getElementById("friend-list");
                 container.innerHTML = "";
                 friends.forEach(fd => {
-                    const p = document.createElement("p");
-                    p.innerHTML = `
-                    ${fd.name}
-                    age: ${fd.age}
-                    quantity: ${fd.quantity}
-                    <button onclick="loadFriend('${fd._id}')">update</button>
-                    <button onclick="deleteFriend(event, '${fd._id}')">delete</button>
+                    const div = document.createElement("div");
+                    div.innerHTML = `                    
+                    <div class="row btn-secondary m-3 friend-item" >
+                        <div class="col-3">
+                            ${fd.name}
+                        </div>
+                        <div class="col-3">
+                            ${fd.age}
+                        </div>
+                        <div class="col-3">
+                            ${fd.email}
+                        </div>
+                        <div class="col-2">
+                            <button class="btn btn-outline-primary btn-color"  onclick="loadFriend('${fd._id}')">Update</button>
+                        </div>
+                        <div class="col-1">
+                            <button class="btn btn-outline-danger btn-color" onclick="deleteFriend(event, '${fd._id}')" >Delete</button>
+                        </div>
+                    </div>                    
+
                     `;
-                    container.appendChild(p);
+                    container.appendChild(div);
                 });
             })
         }
@@ -48,7 +107,7 @@
                 <br/>
                 age: <input type="text" id="age" value="${data.age}" >
                 <br/>
-                quantity: <input type="text" id="quantity"  value="${data.quantity}">
+                email: <input type="text" id="email"  value="${data.email}">
                 <br/>
                 <button type="submit" onclick="updateFriend('${data._id}')"> submit</button>
                 `;
@@ -58,8 +117,8 @@
 
         function updateFriend(id){
             const age = document.getElementById('age').value;
-            const quantity = document.getElementById('quantity').value;
-            const friend = {id, age, quantity};
+            const email = document.getElementById('email').value;
+            const friend = {id, age, email};
             fetch(`/update/${id}`, {
                 method: 'PATCH',
                 headers: {'Content-Type': 'application/json'},
@@ -81,8 +140,9 @@
             })
             .then(res => res.json())
             .then(results => {
-                if(results){
-                    event.target.parentNode.style.display = 'none';
+                if(results){ 
+                    //    console.log(event.target.parentNode.parentNode)
+                    event.target.parentNode.parentNode.style.display = 'none';
                 }
             })
         }

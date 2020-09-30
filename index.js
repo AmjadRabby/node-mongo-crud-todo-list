@@ -44,7 +44,7 @@ app.get('/', (req, res) => {
       app.patch("/update/:id", (req, res) => {
         friendCollection.updateOne({ _id: ObjectId(req.params.id)},      
         {
-          $set: {age: req.body.age, quantity: req.body.quantity}
+          $set: {age: req.body.age, email: req.body.email}
         })
         .then(result => {
           res.send(result.modifiedCount > 0);
